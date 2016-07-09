@@ -19,7 +19,8 @@ except ImportError:
 from ..cache import CACHE_DIR
 from ..exceptions import NoCandidateFound
 from ..utils import (fs_str, is_pinned_requirement, lookup_table,
-                     make_install_requirement, pip_version_info)
+                     make_install_requirement, pip_version_info,
+                     is_vcs_link)
 from .base import BaseRepository
 
 try:
@@ -104,7 +105,7 @@ class PyPIRepository(BaseRepository):
         Returns a Version object that indicates the best match for the given
         InstallRequirement according to the external repository.
         """
-        if ireq.editable or (ireq.link and not ireq.link.is_artifact):
+        if ireq.editable or is_vcs_link(ireq):
             return ireq  # return itself as the best match
 
         all_candidates = self.find_all_candidates(ireq.name)
