@@ -122,6 +122,7 @@ def test_resolver(resolver, from_line, input, expected, prereleases):
     assert output == {str(line) for line in expected}
 
 
+<<<<<<< HEAD
 @pytest.mark.parametrize(
     ('input', 'expected', 'prereleases'),
 
@@ -140,5 +141,12 @@ def test_resolver__allows_unsafe_deps(resolver, from_line, input, expected, prer
     input = [line if isinstance(line, tuple) else (line, False) for line in input]
     input = [from_line(req[0], constraint=req[1]) for req in input]
     output = resolver(input, prereleases=prereleases, allow_unsafe=True).resolve()
+    output = {str(line) for line in output}
+    assert output == {str(line) for line in expected}
+
+
+def test_resolver_with_exclude(resolver, from_line):
+    input, expected = [from_line('ipython')], ['ipython==2.1.0']
+    output = resolver(input, exclude=['gnureadline']).resolve()
     output = {str(line) for line in output}
     assert output == {str(line) for line in expected}
