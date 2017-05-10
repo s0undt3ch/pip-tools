@@ -159,6 +159,8 @@ def sync(to_install, to_uninstall, verbose=False, dry_run=False, pip_flags=None,
             for ireq in sorted(to_install, key=key_from_ireq):
                 if ireq.editable:
                     package_args.extend(['-e', str(ireq.link or ireq.req)])
+                elif is_vcs_link(ireq):
+                    package_args.append(str(ireq.link))
                 else:
                     package_args.append(str(ireq.req))
             check_call([pip, 'install'] + pip_flags + install_flags + package_args)
