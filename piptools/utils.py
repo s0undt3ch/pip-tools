@@ -78,10 +78,8 @@ def format_requirement(ireq, marker=None):
     """
     if ireq.editable or is_vcs_link(ireq):
         line = '{}{}'.format('-e ' if ireq.editable else '', ireq.link)
-    elif include_specifier:
-        line = str(ireq.req)
     else:
-        line = str(ireq.req).lower()
+        line = str(ireq.req)
 
     if marker:
         line = '{} ; {}'.format(line, marker)
