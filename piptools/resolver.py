@@ -120,9 +120,9 @@ class Resolver(object):
     @staticmethod
     def check_constraints(constraints):
         for constraint in constraints:
-            if constraint.link is not None and not constraint.editable:
-                msg = ('pip-compile does not support URLs as packages, unless they are editable. '
-                       'Perhaps add -e option?')
+            if ((constraint.link and not constraint.editable
+                 and not constraint.link.is_artifact and not is_pinned_requirement(constraint))):
+                msg = 'pip-compile does not support non-editable vcs URLs that are not pinned to one version.'
                 raise UnsupportedConstraint(msg, constraint)
 
     def _group_constraints(self, constraints):
@@ -143,9 +143,9 @@ class Resolver(object):
         """
         for _, ireqs in full_groupby(constraints, key=key_from_ireq):
             ireqs = list(ireqs)
-            editable_ireq = first(ireqs, key=lambda ireq: ireq.editable)
-            if editable_ireq:
-                yield editable_ireq  # ignore all the other specs: the editable one is the one that counts
+            exception_ireq = first(ireqs, key=lambda ireq: ireq.editable or (ireq.link and not ireq.link.is_artifact))
+            if exception_ireq:
+                yield exception_ireq  # ignore all the other specs: the editable/vcs one is the one that counts
                 continue
 
             ireqs = iter(ireqs)
@@ -244,7 +244,7 @@ class Resolver(object):
             Flask==0.10.1 => Flask==0.10.1
 
         """
-        if ireq.editable:
+        if ireq.editable or (ireq.link and not ireq.link.is_artifact):
             # NOTE: it's much quicker to immediately return instead of
             # hitting the index server
             best_match = ireq
